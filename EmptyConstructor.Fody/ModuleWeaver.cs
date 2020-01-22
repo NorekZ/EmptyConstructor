@@ -9,7 +9,7 @@ public partial class ModuleWeaver:BaseModuleWeaver
 {
     public MethodAttributes Visibility = MethodAttributes.Public;
     public bool MakeExistingEmptyConstructorsVisible;
-    public bool PreserveInitializers;
+    public bool PreserveInitializers = true;
 
     public override void Execute()
     {
@@ -84,7 +84,7 @@ public partial class ModuleWeaver:BaseModuleWeaver
                 if (baseEmptyConstructor == null)
                 {
                     processed.Add(type, null);
-                    WriteDebug($"Could not inject empty constructor in {type.FullName} because base class does not have a parameterless constructor and is from an external assembly");
+                    LogDebug($"Could not inject empty constructor in {type.FullName} because base class does not have a parameterless constructor and is from an external assembly");
                     continue;
                 }
             }
@@ -100,7 +100,7 @@ public partial class ModuleWeaver:BaseModuleWeaver
             if (baseEmptyConstructor.Resolve().IsPrivate)
             {
                 processed.Add(type, null);
-                WriteWarning($"Could not inject empty constructor in {type.FullName} because the base class has a private parameterless constructor");
+                LogWarning($"Could not inject empty constructor in {type.FullName} because the base class has a private parameterless constructor");
             }
             else
             {
@@ -118,13 +118,13 @@ public partial class ModuleWeaver:BaseModuleWeaver
 
     MethodDefinition AddEmptyConstructor(TypeDefinition type)
     {
-        WriteDebug("Processing " + type.FullName);
+        LogDebug("Processing " + type.FullName);
 
         var methodAttributes = Visibility | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName;
         var method = new MethodDefinition(".ctor", methodAttributes, TypeSystem.VoidReference);
 
         TryInjectPropertyOrFieldInitializers(type, method);
-
+        
         method.Body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0));
         var methodReference = new MethodReference(".ctor", TypeSystem.VoidReference, type.BaseType){HasThis = true};
         method.Body.Instructions.Add(Instruction.Create(OpCodes.Call, methodReference));

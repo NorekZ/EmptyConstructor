@@ -11,6 +11,11 @@ public partial class ModuleWeaver
 
     public void ReadConfig()
     {
+        if (Config == null)
+        {
+            return;
+        }
+
         ReadVisibility();
         ReadMakeExistingEmptyConstructorsVisible();
         ReadExcludes();
@@ -25,7 +30,26 @@ public partial class ModuleWeaver
 
     void ReadInitializersPreserving()
     {
-        TryReadBooleanAttribute("PreserveInitializers", ref PreserveInitializers);
+        var attribute = Config.Attribute("PreserveInitializers");
+        if (attribute == null)
+        {
+            return;
+        }
+
+        if (string.Compare(attribute.Value, "true", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            PreserveInitializers = true;
+            return;
+        }
+
+        if (string.Compare(attribute.Value, "false", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            PreserveInitializers = false;
+            return;
+        }
+
+        var message = $"Could not convert '{attribute.Value}' to a boolean. Only 'true' or 'false' are allowed.";
+        throw new WeavingException(message);
     }
 
     void ReadVisibility()
@@ -54,7 +78,26 @@ public partial class ModuleWeaver
 
     void ReadMakeExistingEmptyConstructorsVisible()
     {
-        TryReadBooleanAttribute("MakeExistingEmptyConstructorsVisible", ref MakeExistingEmptyConstructorsVisible);
+        var attribute = Config.Attribute("MakeExistingEmptyConstructorsVisible");
+        if (attribute == null)
+        {
+            return;
+        }
+
+        if (string.Compare(attribute.Value, "true", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            MakeExistingEmptyConstructorsVisible = true;
+            return;
+        }
+
+        if (string.Compare(attribute.Value, "false", StringComparison.OrdinalIgnoreCase) == 0)
+        {
+            MakeExistingEmptyConstructorsVisible = false;
+            return;
+        }
+
+        var message = $"Could not convert '{attribute.Value}' to a boolean. Only 'true' or 'false' are allowed.";
+        throw new WeavingException(message);
     }
 
     void ReadExcludes()
@@ -113,29 +156,5 @@ public partial class ModuleWeaver
         {
             IncludeNamespaces.Add(item);
         }
-    }
-
-    void TryReadBooleanAttribute(string attributeName, ref bool value)
-    {
-        var attribute = Config.Attribute(attributeName);
-        if (attribute == null)
-        {
-            return;
-        }
-
-        if (string.Compare(attribute.Value, "true", StringComparison.OrdinalIgnoreCase) == 0)
-        {
-            value = true;
-            return;
-        }
-
-        if (string.Compare(attribute.Value, "false", StringComparison.OrdinalIgnoreCase) == 0)
-        {
-            value = false;
-            return;
-        }
-
-        var message = $"Could not convert {attributeName}='{attribute.Value}' to a boolean. Only 'true' or 'false' are allowed.";
-        throw new WeavingException(message);
     }
 }

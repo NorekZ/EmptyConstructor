@@ -1,9 +1,12 @@
 ﻿using System.Xml.Linq;
 using Fody;
 using Mono.Cecil;
+using VerifyXunit;
 using Xunit;
+using Xunit.Abstractions;
 
-public class ConfigReaderTests
+public class ConfigReaderTests :
+    VerifyBase
 {
     [Fact]
     public void ExcludeNamespacesNode()
@@ -83,7 +86,7 @@ Foo.Bar
         var xElement = XElement.Parse("<EmptyConstructor/>");
         var moduleWeaver = new ModuleWeaver { Config = xElement };
         moduleWeaver.ReadConfig();
-        Assert.False(moduleWeaver.PreserveInitializers);
+        Assert.True(moduleWeaver.PreserveInitializers);
     }
 
     [Fact]
@@ -182,5 +185,10 @@ Bar
         moduleWeaver.ReadConfig();
         Assert.Equal("Foo", moduleWeaver.IncludeNamespaces[0]);
         Assert.Equal("Bar", moduleWeaver.IncludeNamespaces[1]);
+    }
+
+    public ConfigReaderTests(ITestOutputHelper output) :
+        base(output)
+    {
     }
 }
