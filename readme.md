@@ -1,14 +1,12 @@
-# <img src="/package_icon.png" height="30px"> EmptyConstructor.Fody
-
 [![Chat on Gitter](https://img.shields.io/gitter/room/fody/fody.svg)](https://gitter.im/Fody/Fody)
 [![NuGet Status](https://img.shields.io/nuget/v/EmptyConstructor.Fody.svg)](https://www.nuget.org/packages/EmptyConstructor.Fody/)
 
+![Icon](https://raw.githubusercontent.com/Fody/EmptyConstructor/master/package_icon.png)
+
+
+## This is an add-in for [Fody](https://github.com/Fody/Home/)
+
 Adds an empty constructor to classes even if you have a non-empty one defined.
-
-
-### This is an add-in for [Fody](https://github.com/Fody/Home/)
-
-**It is expected that all developers using Fody either [become a Patron on OpenCollective](https://opencollective.com/fody/contribute/patron-3059), or have a [Tidelift Subscription](https://tidelift.com/subscription/pkg/nuget-fody?utm_source=nuget-fody&utm_medium=referral&utm_campaign=enterprise). [See Licensing/Patron FAQ](https://github.com/Fody/Home/blob/master/pages/licensing-patron-faq.md) for more information.**
 
 
 ## Usage
@@ -133,7 +131,7 @@ A list of namespaces to include.
 
 Can not be defined with `ExcludeNamespaces`.
 
-Can take two forms.
+Can take two forms. 
 
 As an element with items delimited by a newline.
 
@@ -152,51 +150,14 @@ Or as a attribute with items delimited by a pipe `|`.
 <EmptyConstructor IncludeNamespaces='Foo|Bar'/>
 ```
 
-### Initializers Preservation
+### Initializers preserving
 
-By default, the generated constructors remain empty. If you would like field & property initialization to be copied from an existing constructor enable this via the `PreserveInitializers` attribute.
+By default, field & property initializers are called when generated constructor is called (behaves like default constructor is handwritten). This behavior can be disabled by `DoNotPreserveInitializers` attribute.
 
 ```xml
-<EmptyConstructor PreserveInitializers='true'/>
+<EmptyConstructor DoNotPreserveInitializers='false'/>
 ```
 
-Example, without initializers preservation:
-
-    public class Foo
-    {
-        private int someValue;
-        private int otherValue;
-        
-        public Foo(int someValue)
-        {
-          this.someValue = someValue;
-          otherValue = 17;
-        }
-        
-        // generated constructor
-        public Foo() { }
-    }
-
-Example, with initializers preservation:
-
-    public class Foo
-    {
-        private int someValue;
-        private int otherValue;
-        
-        public Foo(int someValue)
-        {
-          this.someValue = someValue;
-          otherValue = 17;
-        }
-        
-        // generated constructor
-        public Foo()
-        {
-            // note: this.someValue isn't set
-            otherValue = 17;
-        }
-    }
 
 ## Icon
 
